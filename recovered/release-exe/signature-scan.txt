@@ -1,0 +1,7 @@
+7z: first40_count=0 offsets=[]
+zip: first40_count=4 offsets=[63263025, 145384899, 145402148, 216216291]
+zstd: first40_count=5 offsets=[12159829, 12661199, 12661789, 12661816, 221118080]
+gzip: first40_count=8 offsets=[47365284, 126064978, 131824542, 150629530, 153072814, 166627420, 216218138, 232700081]
+cab: first40_count=0 offsets=[]
+rar: first40_count=1 offsets=[216218218]
+asar_json: first40_count=0 offsets=[]

@@ -1,0 +1,8 @@
+started: 2026-08-25T20:44:26Z
+commit: dc12d8bc5db7c6619d890cda582765488e604294
+size_bytes: 235533824
+sha256: 5657ac10efa033ce7cd1b9d28c62e6dcc6950082145d537a8afd58e2f3d4b6e1
+file_type: PE32+ executable (GUI) x86-64, for MS Windows, 15 sections
+finished: 2026-08-25T20:44:33Z
+asar_verdict: header-hash-match
+payload_extracted: no

@@ -1,0 +1,12 @@
+REDLINE: count=0 first_offset=-1
+AccarTunnelBot: count=0 first_offset=-1
+TUN CORE: count=0 first_offset=-1
+happ-redline: count=0 first_offset=-1
+app.asar: count=9 first_offset=189839395
+chrome_100_percent: count=1 first_offset=216516729
+winws: count=0 first_offset=-1
+sing-box: count=0 first_offset=-1
+DPI SHIELD: count=0 first_offset=-1
+xray.exe: count=0 first_offset=-1
+Local Operator: count=0 first_offset=-1
+redline://: count=0 first_offset=-1
