@@ -52,7 +52,7 @@ async function fetchSubscription(urlValue, options = {}) {
   try {
     const headers = {
       'accept': 'text/plain, application/json, application/octet-stream;q=0.9, */*;q=0.5',
-      ...(options.hwidEnabled ? requestHeaders(options.deviceIdentity) : { 'user-agent': 'REDLINE-Client/1.8.1-beta (Windows x64)' })
+      ...(options.hwidEnabled ? requestHeaders(options.deviceIdentity) : { 'user-agent': 'REDLINE-Client/1.9.0-beta (Windows x64)' })
     };
     const response = await fetch(url, { method: 'GET', redirect: 'follow', signal: controller.signal, headers });
     if (!response.ok) throw new Error(`Сервер подписки ответил HTTP ${response.status}`);

@@ -62,7 +62,7 @@ async function createHardwareIdentity(options = {}) {
   }
 }
 
-function requestHeaders(identity, version = '1.8.1-beta') {
+function requestHeaders(identity, version = '1.9.0-beta') {
   if (!identity?.hwid) return { 'user-agent': `REDLINE-Client/${version} (Windows x64)` };
   return {
     'user-agent': `REDLINE-Client/${version} (Windows x64; HWID)`,

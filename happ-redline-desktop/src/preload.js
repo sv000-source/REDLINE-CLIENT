@@ -92,6 +92,15 @@ contextBridge.exposeInMainWorld('redline', Object.freeze({
       return () => ipcRenderer.removeListener('xray:event', listener);
     }
   }),
+  updater: Object.freeze({
+    check: () => invoke('updater:check'),
+    openRelease: url => invoke('updater:open-release', { url }),
+    onStatus: callback => {
+      const listener = (_event, value) => callback(value);
+      ipcRenderer.on('updater:status', listener);
+      return () => ipcRenderer.removeListener('updater:status', listener);
+    }
+  }),
   window: Object.freeze({
     minimize: () => ipcRenderer.invoke('window:minimize'),
     maximize: () => ipcRenderer.invoke('window:maximize'),

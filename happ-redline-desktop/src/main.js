@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, dialog, safeStorage, session } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, safeStorage, session, Tray, nativeImage, Menu, shell } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const { execFile } = require('node:child_process');
@@ -15,8 +15,10 @@ const { SystemControl } = require('./services/system-control');
 const { createHardwareIdentity } = require('./services/hwid');
 const { SecuritySettings } = require('./services/security-settings');
 const { parseDeepLink, PendingDeepLinks, findDeepLinks } = require('./services/deeplink');
+const { checkForUpdates, RELEASES_PAGE_BASE } = require('./services/updater');
 
 let mainWindow;
+let tray;
 let subscriptions;
 let systemProxy;
 let xray;
@@ -187,6 +189,87 @@ async function performEmergencyReset() {
   return { ok: true, report, completedAt: new Date().toISOString() };
 }
 
+function loadTrayImage() {
+  for (const file of ['icon.ico', 'icon-32.png']) {
+    try {
+      const image = nativeImage.createFromPath(path.join(__dirname, 'assets', file));
+      if (!image.isEmpty()) return image;
+    } catch (_) { /* пробуем следующий файл */ }
+  }
+  return nativeImage.createEmpty();
+}
+
+function showWindowFromTray() {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    createWindow();
+    return;
+  }
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+}
+
+function openReleasePage(url) {
+  // Открываем только страницы релизов собственного репозитория —
+  // произвольные внешние ссылки из данных релиза не запускаем.
+  const candidate = String(url || '');
+  const parsed = new URL(candidate);
+  const allowed = parsed.protocol === 'https:'
+    && parsed.hostname.toLowerCase() === 'github.com'
+    && parsed.pathname.toLowerCase().startsWith('/sv000-source/redline-client/releases');
+  if (!allowed) throw new Error('Можно открыть только страницу релизов REDLINE');
+  return shell.openExternal(candidate);
+}
+
+async function runUpdateCheck({ notify = false } = {}) {
+  const currentVersion = app.getVersion();
+  let status;
+  try {
+    status = await checkForUpdates({ currentVersion, fetchFn: globalThis.fetch });
+  } catch (error) {
+    status = { ok: false, checked: false, current: currentVersion, error: error?.message || 'Проверка не выполнена' };
+  }
+  if (tray && !tray.isDestroyed()) {
+    tray.setToolTip(status.ok && status.updateAvailable
+      ? `REDLINE Client ${currentVersion} — доступна ${status.latest.version}`
+      : `REDLINE Client ${currentVersion}`);
+  }
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('updater:status', status);
+  if (status.ok && status.updateAvailable && status.latest && notify && mainWindow && !mainWindow.isDestroyed()) {
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      title: 'REDLINE Client — обновление',
+      message: `Доступна версия ${status.latest.version}`,
+      detail: `Сейчас установлена: ${status.current}. Релиз публикуется на GitHub — перед установкой сверьте SHA-256 из описания релиза.`,
+      buttons: ['Открыть релиз', 'Позже'],
+      defaultId: 0,
+      cancelId: 1
+    });
+    if (response === 0) openReleasePage(status.latest.htmlUrl || RELEASES_PAGE_BASE).catch(() => {});
+  }
+  return status;
+}
+
+function createTray() {
+  try {
+    tray = new Tray(loadTrayImage());
+  } catch (_) {
+    tray = null;
+    return; // трей — best effort: приложение работает без него
+  }
+  tray.setToolTip(`REDLINE Client ${app.getVersion()}`);
+  const menu = Menu.buildFromTemplate([
+    { label: 'Показать REDLINE Client', click: showWindowFromTray },
+    { type: 'separator' },
+    { label: 'Проверить обновления', click: () => { runUpdateCheck({ notify: true }); } },
+    { label: 'GitHub Releases', click: () => { openReleasePage(RELEASES_PAGE_BASE).catch(() => {}); } },
+    { type: 'separator' },
+    { label: 'Выход', click: () => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.close(); else app.quit(); } }
+  ]);
+  tray.setContextMenu(menu);
+  tray.on('double-click', showWindowFromTray);
+}
+
 function result(handler) {
   return async (_event, payload) => {
     try { return { ok: true, data: await handler(payload) }; }
@@ -318,6 +401,9 @@ function registerIpc() {
   }));
   ipcMain.handle('singbox:stop', result(async () => singbox.stop()));
 
+  ipcMain.handle('updater:check', result(async () => runUpdateCheck({ notify: true })));
+  ipcMain.handle('updater:open-release', result(async payload => { await openReleasePage(payload?.url); return { opened: true }; }));
+
   ipcMain.handle('zapret:status', result(async () => zapret.refreshStatus()));
   ipcMain.handle('zapret:start', result(async payload => {
     if (xray.publicStatus().state === 'running') throw new Error('Сначала остановите Xray Proxy');
@@ -414,6 +500,11 @@ if (!lock) {
 
     session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
     createWindow();
+    createTray();
+    // Фоновая проверка обновлений после запуска: без диалога, только
+    // статус в трей-иконке и строке настроек. Ручная проверка — кнопка
+    // «Проверить» в настройках или пункт меню трея.
+    setTimeout(() => { runUpdateCheck({ notify: false }); }, 3000);
     if (recovery.recovered) {
       mainWindow.webContents.once('did-finish-load', () => mainWindow.webContents.send('xray:event', {
         type: 'log', level: 'warn', message: 'Восстановлены системные настройки Proxy после предыдущего аварийного завершения', at: new Date().toISOString(), status: xray.publicStatus()
