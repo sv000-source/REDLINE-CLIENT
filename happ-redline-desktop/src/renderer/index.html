@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="theme-color" content="#090a0d">
+  <title>REDLINE Client</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="titlebar">
+      <div class="brand-mini"><span class="brand-mark"><i></i><i></i><i></i></span><span>REDLINE CLIENT</span><span class="build" id="title-version">NATIVE · 0.2.0</span></div>
+      <div class="titlebar-center"><span class="secure-dot"></span> LOCAL NETWORK CONTROL // NO CLOUD</div>
+      <div class="window-controls" aria-label="Управление окном">
+        <button id="win-minimize" aria-label="Свернуть">—</button>
+        <button id="win-maximize" aria-label="Развернуть">□</button>
+        <button id="win-close" class="close" aria-label="Закрыть">×</button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <div class="identity">
+        <div class="identity-logo"><svg viewBox="0 0 64 64"><path fill-rule="evenodd" d="M32 3 56 13v17c0 15-9 25-24 31C17 55 8 45 8 30V13L32 3Zm5 11L18 37h12l-3 14 20-27H35l2-10Z"/></svg></div>
+        <div><strong>REDLINE</strong><span>DPI + XRAY CONTROL</span></div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-view="dashboard" data-title="Центр управления" data-subtitle="Локальные подписки и состояние узлов"><svg><use href="#i-grid"/></svg><span>Обзор</span><em>01</em></button>
+        <button class="nav-item" data-view="nodes" data-title="Мои узлы" data-subtitle="Только серверы из добавленных вами подписок"><svg><use href="#i-server"/></svg><span>Узлы</span><em id="nav-node-count">0</em></button>
+        <button class="nav-item" data-view="subscriptions" data-title="Мои подписки" data-subtitle="Удалённые URL и локальные конфигурации"><svg><use href="#i-link"/></svg><span>Подписки</span><em id="nav-sub-count">0</em></button>
+        <button class="nav-item" data-view="logs" data-title="Локальный журнал" data-subtitle="События интерфейса, импорта и проверки узлов"><svg><use href="#i-terminal"/></svg><span>Журнал</span><em class="live-count">LIVE</em></button>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+      <button class="nav-item" data-view="settings" data-title="Параметры" data-subtitle="Хранилище, масштаб и поведение окна"><svg><use href="#i-settings"/></svg><span>Настройки</span><em>⌘</em></button>
+      <div class="operator-card"><div class="avatar">RX</div><div><strong>LOCAL OPERATOR</strong><span>WINDOWS 11 · X64</span></div><button title="Локальный режим">•••</button></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><div class="eyebrow"><span>SYS</span> / <span id="crumb">OVERVIEW</span></div><h1 id="page-title">Центр управления</h1><p id="page-subtitle">Локальные подписки и состояние узлов</p></div>
+        <div class="top-actions">
+          <div class="core-pill"><span id="xray-led"></span><div><small>XRAY CORE</small><strong id="xray-version">ПРОВЕРКА…</strong></div></div>
+          <div class="core-pill storage-pill"><span id="storage-led"></span><div><small>LOCAL STORAGE</small><strong id="storage-status">ПРОВЕРКА…</strong></div></div>
+          <button class="ui-mode-switch" id="ui-mode-switch"><span>PRO MODE</span><i></i></button>
+          <button class="icon-btn" id="command-open" title="Командная панель"><svg><use href="#i-search"/></svg><kbd>Ctrl K</kbd></button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="view active" id="dashboard">
+          <div class="hero-grid">
+            <article class="panel connection-panel real-mode">
+              <div class="corner-label">LOCAL NODE CONTROL</div>
+              <div class="connection-copy">
+                <div class="engine-selector" id="engine-selector"><button class="active" data-engine="zapret"><span class="engine-logo"><svg><use href="#i-dpi"/></svg></span><span class="engine-name">DPI SHIELD</span></button><button class="recommended" data-engine="singbox"><span class="engine-logo"><svg><use href="#i-tunnel"/></svg></span><span class="engine-name">TUN CORE</span><em>РЕКОМЕНДУЕТСЯ</em></button><button data-engine="xray"><span class="engine-logo"><svg><use href="#i-xray"/></svg></span><span class="engine-name">XRAY</span></button></div>
+                <div class="status-label"><span class="status-led"></span><span id="status-kicker">DPI SHIELD ГОТОВ</span></div>
+                <h2 id="status-title">Добавьте свою подписку</h2>
+                <p id="status-description">В приложении нет встроенных серверов. После импорта здесь появятся только ваши узлы.</p>
+                <div class="connection-specs engine-spec active" data-engine-spec="zapret">
+                  <div><small>СТРАТЕГИЯ DPI</small><select class="select-like select-control" id="zapret-profile"><option value="general">GENERAL</option><option value="alt">ALT</option><option value="alt2">ALT 2</option><option value="fakeTls">FAKE TLS AUTO</option><option value="simpleFake">SIMPLE FAKE</option><option value="experimental">EXPERIMENTAL</option></select></div>
+                  <div><small>ЦЕЛЕВАЯ МАТРИЦА</small><button class="select-like" id="zapret-test">RUN YT + DISCORD TEST <svg><use href="#i-activity"/></svg></button></div>
+                </div>
+                <div class="connection-specs engine-spec three-columns" data-engine-spec="xray singbox">
+                  <div><small>ПОДПИСКА</small><select class="select-like select-control" id="active-subscription-select"><option value="">НЕТ ПОДПИСОК</option></select></div>
+                  <div><small>УЗЕЛ</small><select class="select-like select-control" id="active-node-select"><option value="">НЕТ УЗЛОВ</option></select></div>
+                  <div><small>ПРОВЕРКА</small><button class="select-like" id="ping-selected" disabled>PING <svg><use href="#i-activity"/></svg></button></div>
+                </div>
+                <label class="proxy-option engine-spec" data-engine-spec="xray"><span class="toggle"><input id="system-proxy-toggle" type="checkbox" checked><i></i></span><div><strong>СИСТЕМНЫЙ PROXY WINDOWS</strong><small>HTTP/HTTPS трафик приложений будет направлен на локальный порт Xray</small></div></label>
+                <div class="proxy-option engine-spec" data-engine-spec="singbox"><span class="event-icon ok"><svg><use href="#i-shield"/></svg></span><div><strong>TUN + MIXED PROXY</strong><small>auto_route · strict_route · TCP/UDP/QUIC/DNS · mixed 127.0.0.1:10818</small></div></div>
+              </div>
+              <div class="power-wrap">
+                <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+                <button class="power-button" id="power-button" disabled><span class="power-icon"><svg><use href="#i-power"/></svg></span><strong id="power-label">START</strong><small id="power-detail">XRAY PROXY</small></button>
+                <div class="handshake"><i></i><span id="core-state-label">CORE READY</span><i></i></div>
+              </div>
+            </article>
+
+            <article class="panel endpoint-panel">
+              <div class="panel-head"><div><span class="tag">LOCAL INVENTORY</span><h3>Ваши конфигурации</h3></div><button class="dots">•••</button></div>
+              <div class="inventory-ring">
+                <div class="ring"><strong id="inventory-node-count">0</strong><small>УЗЛОВ</small></div>
+                <div class="inventory-list">
+                  <div><span>ПОДПИСОК</span><strong id="inventory-sub-count">0</strong></div>
+                  <div><span>ДОСТУПНЫ</span><strong class="good" id="inventory-online-count">—</strong></div>
+                  <div><span>ПОСЛЕДНИЙ PING</span><strong id="inventory-ping-time">НИКОГДА</strong></div>
+                </div>
+              </div>
+              <div class="privacy-strip"><svg><use href="#i-shield"/></svg><div><strong>НИКАКИХ ЧУЖИХ СЕРВЕРОВ</strong><small>Пустая база при первом запуске</small></div></div>
+            </article>
+          </div>
+
+          <div class="metric-row">
+            <article class="metric-card"><div class="metric-icon red"><svg><use href="#i-link"/></svg></div><div><small>МОИ ПОДПИСКИ</small><strong><span id="metric-sub-count">0</span> <em>ИСТОЧНИКОВ</em></strong><button class="inline-action add-subscription">Добавить первую →</button></div></article>
+            <article class="metric-card"><div class="metric-icon"><svg><use href="#i-activity"/></svg></div><div><small>СРЕДНЯЯ ЗАДЕРЖКА</small><strong><span id="metric-latency">—</span> <em>MS</em></strong><span class="metric-delta">По последней проверке</span></div></article>
+            <article class="metric-card"><div class="metric-icon"><svg><use href="#i-shield"/></svg></div><div><small>ХРАНИЛИЩЕ</small><strong id="metric-storage">LOCAL</strong><span class="metric-delta" id="metric-storage-detail">Определение защиты…</span></div></article>
+          </div>
+
+          <div class="dashboard-grid real-dashboard-grid">
+            <article class="panel event-panel">
+              <div class="panel-head"><div><span class="tag">LOCAL EVENTS</span><h3>Последние события</h3></div><button class="text-button log-shortcut">Журнал →</button></div>
+              <div class="event-list" id="event-list"></div>
+            </article>
+          </div>
+          <article class="power-dock panel dashboard-power"><div><span class="tag">POWER CONTROL</span><h3>Питание компьютера</h3></div><button class="power-action sleep" data-power="sleep"><svg><use href="#i-moon"/></svg><span><strong>СОН</strong><small>10 секунд</small></span></button><button class="power-action restart" data-power="restart"><svg><use href="#i-refresh"/></svg><span><strong>ПЕРЕЗАГРУЗКА</strong><small>10 секунд</small></span></button><button class="power-action shutdown" data-power="shutdown"><svg><use href="#i-power"/></svg><span><strong>ВЫКЛЮЧЕНИЕ</strong><small>10 секунд</small></span></button></article>
+        </section>
+
+        <section class="view" id="nodes">
+          <div class="section-toolbar">
+            <div class="segmented"><button class="active" data-node-filter="all">Все <span id="all-node-count">0</span></button><button data-node-filter="online">Доступные</button><button data-node-filter="failed">Недоступные</button></div>
+            <div class="toolbar-actions"><label class="search-field"><svg><use href="#i-search"/></svg><input id="node-search" placeholder="Имя, адрес, протокол..."></label><button class="btn secondary" id="ping-all" disabled><svg><use href="#i-activity"/></svg> Проверить все</button><button class="btn primary add-subscription"><svg><use href="#i-plus"/></svg> Добавить источник</button></div>
+          </div>
+          <article class="panel table-panel">
+            <div class="table-title"><div><span class="tag">MY NODE MATRIX</span><h3>Узлы из ваших подписок</h3></div><div class="legend"><span><i class="green-dot"></i>ДОСТУПЕН</span><span><i class="yellow-dot"></i>МЕДЛЕННЫЙ</span><span><i></i>НЕ ПРОВЕРЕН</span></div></div>
+            <div class="node-table" id="node-table">
+              <div class="table-row table-header"><span></span><span>УЗЕЛ / АДРЕС</span><span>ПРОТОКОЛ</span><span>ЗАДЕРЖКА</span><span>ИСТОЧНИК</span><span>СТАТУС</span><span></span></div>
+              <div class="table-empty" id="nodes-empty"><span class="empty-icon"><svg><use href="#i-server"/></svg></span><strong>Список узлов пуст</strong><p>Добавьте собственную подписку. Демонстрационные и чужие серверы не используются.</p><button class="btn primary add-subscription"><svg><use href="#i-plus"/></svg> Добавить подписку</button></div>
+            </div>
+            <div class="table-footer"><span id="node-footer-count">0 узлов</span><span>TCP для VLESS/VMess/Trojan/SS · ICMP для Hysteria2</span></div>
+          </article>
+        </section>
+
+        <section class="view" id="subscriptions">
+          <div class="section-toolbar"><div><span class="tag">PRIVATE CONFIG SOURCES</span><h2 class="section-title" id="subscription-heading">Подписок пока нет</h2></div><div class="toolbar-actions"><button class="btn secondary" id="update-all" disabled><svg><use href="#i-refresh"/></svg> Обновить все</button><button class="btn primary add-subscription"><svg><use href="#i-plus"/></svg> Новая подписка</button></div></div>
+          <article class="panel subscription-source-note" id="subscription-source-note">
+            <span class="event-icon source-bot-icon"><svg><use href="#i-link"/></svg></span>
+            <div class="subscription-source-copy"><strong>ГДЕ ВЗЯТЬ ПОДПИСКУ</strong><p>Подписки можно брать в этих Telegram-ботах:</p></div>
+            <div class="subscription-bot-list" aria-label="Telegram-боты с подписками"><code>@AccarTunnelBot</code><code>@perec</code><code>@maxvpnonlinebot</code><code>@abs_vpnbot</code><code>@Geodema_bot</code></div>
+          </article>
+          <div class="subscription-grid" id="subscription-grid">
+            <button class="add-card add-subscription" id="subscription-empty-card"><span><svg><use href="#i-plus"/></svg></span><strong>ДОБАВИТЬ СВОЙ ИСТОЧНИК</strong><small>URL · TEXT · BASE64 · FILE</small></button>
+          </div>
+          <article class="panel security-note"><span class="event-icon warn"><svg><use href="#i-shield"/></svg></span><div><strong>Локальное хранение</strong><p id="security-note-text">На Windows ссылки и конфигурации шифруются через системный Electron safeStorage/DPAPI.</p></div><span class="stage-badge" id="security-badge">CHECKING</span></article>
+        </section>
+
+        <section class="view" id="logs">
+          <div class="section-toolbar"><div class="segmented log-levels"><button class="active" data-log-filter="all">ALL</button><button data-log-filter="info">INFO</button><button data-log-filter="warn">WARN</button><button data-log-filter="error">ERROR</button></div><div class="toolbar-actions"><label class="search-field"><svg><use href="#i-search"/></svg><input id="log-search" placeholder="Фильтр журнала..."></label><button class="btn secondary" id="clear-logs"><svg><use href="#i-trash"/></svg> Очистить</button></div></div>
+          <article class="terminal-panel"><div class="terminal-head"><div><span class="terminal-dot red"></span><span class="terminal-dot amber"></span><span class="terminal-dot green"></span></div><span>REDLINE://LOCAL_EVENT_STREAM</span><div><span class="stream-dot"></span> LOCAL</div></div><div class="terminal" id="terminal"><div class="terminal-prompt"><span>operator@redline:~$</span><i></i></div></div><div class="terminal-footer"><span><i></i> CLIENT ACTIVE</span><span id="log-count">0 EVENTS</span><span>NO TELEMETRY</span><span>LOCAL ONLY</span></div></article>
+        </section>
+
+        <section class="view" id="settings">
+          <div class="settings-layout">
+            <aside class="panel settings-nav"><span class="tag">CONFIGURATION</span><button class="active">Основные</button><button>Безопасность</button><button>Интерфейс</button><div class="settings-version"><small>REDLINE CLIENT</small><strong id="settings-version">0.2.0</strong><span>Native MVP · subscriptions + ping</span></div></aside>
+            <div class="settings-content">
+              <article class="panel settings-card"><div class="settings-heading"><div><span class="tag">WINDOW</span><h3>Масштабируемое окно</h3></div><span class="save-state">● RESIZABLE</span></div><div class="setting-row"><div><strong>Размер окна запоминается</strong><small>Минимум 900×620; интерфейс перестраивается по ширине</small></div><span class="status-chip good-chip">ACTIVE</span></div><div class="setting-row"><div><strong>Масштаб интерфейса</strong><small>Ctrl+Plus, Ctrl+Minus, Ctrl+0</small></div><div class="zoom-controls"><button id="zoom-out">−</button><button id="zoom-reset">100%</button><button id="zoom-in">+</button></div></div><label class="setting-row"><div><strong>Эффект сканирующей линии</strong><small>Только декоративный слой</small></div><span class="toggle"><input id="scanline-toggle" type="checkbox"><i></i></span></label><label class="setting-row"><div><strong>Автозапуск Windows</strong><small>Планировщик задач · ONLOGON · наивысшие права</small></div><span class="toggle"><input id="autostart-toggle" type="checkbox"><i></i></span></label><div class="setting-row"><div><strong>Полноэкранный Big Picture</strong><small>REDLINE всегда запускается на весь экран</small></div><button class="btn secondary" id="exit-fullscreen"><svg><use href="#i-grid"/></svg> Выйти в окно</button></div><div class="setting-row"><div><strong>Обучение</strong><small>Повторно открыть мастер из четырёх шагов</small></div><button class="btn secondary" id="restart-onboarding"><svg><use href="#i-info"/></svg> Открыть обучение</button></div><div class="setting-row"><div><strong>Завершить REDLINE</strong><small>Показать финальную командную сцену и закрыть приложение</small></div><button class="btn primary" id="exit-redline"><svg><use href="#i-power"/></svg> Выход</button></div></article>
+              <article class="panel settings-card"><div class="settings-heading"><div><span class="tag">STARTUP LOCK</span><h3>Пароль при запуске</h3></div><span class="status-chip" id="password-status">DISABLED</span></div><p class="settings-note">Пароль необязательный. Если включён, при запуске REDLINE откроется минимальная консоль авторизации. Сохраняется только scrypt-хеш, исходный пароль не записывается.</p><div class="password-form"><label><span>НОВЫЙ ПАРОЛЬ</span><input id="new-startup-password" type="password" autocomplete="new-password" placeholder="Минимум 4 символа"></label><label><span>ПОВТОРИТЕ ПАРОЛЬ</span><input id="confirm-startup-password" type="password" autocomplete="new-password" placeholder="Повторите пароль"></label><div><button class="btn primary" id="save-startup-password"><svg><use href="#i-shield"/></svg> Установить</button><button class="btn secondary" id="remove-startup-password">Удалить пароль</button></div></div></article>
+              <article class="panel settings-card"><div class="settings-heading"><div><span class="tag">APPEARANCE</span><h3>Темы и сложность интерфейса</h3></div></div><div class="theme-grid"><button class="theme-choice active" data-theme="redline"><i class="theme-preview red"></i><span><strong>REDLINE</strong><small>Красный терминал</small></span></button><button class="theme-choice" data-theme="matrix"><i class="theme-preview green"></i><span><strong>MATRIX</strong><small>Зелёный код</small></span></button><button class="theme-choice" data-theme="cyber"><i class="theme-preview purple"></i><span><strong>CYBER VOID</strong><small>Фиолетовый неон</small></span></button><button class="theme-choice" data-theme="amber"><i class="theme-preview amber"></i><span><strong>AMBER OPS</strong><small>Янтарная консоль</small></span></button></div><div class="setting-row"><div><strong>Режим интерфейса</strong><small>Упрощённый — одна кнопка; PRO — узлы, подписки и диагностика</small></div><div class="segmented interface-mode"><button data-ui-mode="simple">УПР.</button><button class="active" data-ui-mode="pro">PRO</button></div></div></article>
+              <article class="panel settings-card"><div class="settings-heading"><div><span class="tag">DPI ENGINE</span><h3>Flowseal Zapret</h3></div><span class="status-chip" id="settings-zapret-status">CHECK</span></div><div class="setting-row"><div><strong>Комплект обхода</strong><small id="settings-zapret-detail">Проверка winws и WinDivert…</small></div><span class="status-chip good-chip">1.10.1</span></div><div class="setting-row"><div><strong>Целевые сервисы</strong><small>YouTube, GoogleVideo, Discord Gateway, Voice и STUN</small></div><span class="status-chip good-chip">ARMED</span></div><div class="setting-row"><div><strong>Права администратора</strong><small>Windows покажет UAC при запуске и остановке DPI bypass</small></div><span class="status-chip bad-chip">REQUIRED</span></div></article>
+              <article class="panel settings-card"><div class="settings-heading"><div><span class="tag">SECURITY</span><h3>Данные и сетевое ядро</h3></div></div><div class="setting-row"><div><strong>Xray Core</strong><small id="settings-xray-detail">Проверка встроенного ядра…</small></div><span class="status-chip" id="settings-xray-status">CHECK</span></div><div class="setting-row"><div><strong>Sing-box TUN Core</strong><small id="settings-singbox-detail">Проверка sing-box…</small></div><span class="status-chip" id="settings-singbox-status">CHECK</span></div><div class="setting-row"><div><strong>Hardware HWID</strong><small>SHA-256 от MachineGuid, CPU, платы и BIOS; исходные серийные номера не сохраняются</small></div><code class="hwid-value" id="settings-hwid">—</code></div><div class="setting-row"><div><strong>Ссылки с сайтов</strong><small id="settings-protocol-detail">Регистрация redline://; happ:// отключён…</small></div><span class="status-chip" id="settings-protocol-status">CHECK</span></div><div class="setting-row"><div><strong>Системное шифрование</strong><small id="settings-encryption-detail">Проверка Electron safeStorage…</small></div><span class="status-chip" id="settings-encryption-status">CHECK</span></div><div class="setting-row"><div><strong>Удалённая телеметрия</strong><small>Приложение не содержит аналитики и не отправляет список серверов</small></div><span class="status-chip good-chip">OFF</span></div><div class="setting-row"><div><strong>Встроенные подписки</strong><small>Исходная база данных всегда пустая</small></div><span class="status-chip good-chip">NONE</span></div></article>
+              <article class="panel settings-card emergency-card"><div class="settings-heading"><div><span class="tag">EMERGENCY NETWORK RESET</span><h3>Аварийный сброс сети</h3></div><span class="status-chip bad-chip">DANGER</span></div><p class="settings-note">Останавливает Xray, Sing-box и Zapret, восстанавливает системный Proxy, удаляет WinDivert, очищает DNS-кеш и временные runtime-файлы. Подписки, HWID и личные заметки сохраняются.</p><div class="setting-row"><div><strong>Использовать при пропавшем интернете</strong><small>Потребуется подтверждение. Операция может закрыть другие процессы xray/sing-box/winws.</small></div><button class="btn primary emergency-button" id="emergency-reset"><svg><use href="#i-shield"/></svg> Аварийный сброс</button></div><pre class="emergency-report" id="emergency-report"></pre></article>
+              <article class="panel settings-card"><div class="settings-heading"><div><span class="tag">IMPLEMENTED</span><h3>Состояние этапов</h3></div></div><div class="milestone done"><span>01</span><div><strong>Нативное окно и масштабирование</strong><small>Electron · Windows x64 · responsive UI</small></div><b>DONE</b></div><div class="milestone done"><span>02</span><div><strong>Свои подписки и реальный ping</strong><small>URL / Base64 / text / file · TCP / ICMP</small></div><b>DONE</b></div><div class="milestone done"><span>03</span><div><strong>Xray Proxy и подключение</strong><small>Встроенное ядро, SOCKS/HTTP, system proxy и восстановление</small></div><b>DONE</b></div><div class="milestone done"><span>04</span><div><strong>DPI Shield: YouTube + Discord</strong><small>Flowseal Zapret, WinDivert, 6 стратегий и UAC lifecycle</small></div><b>DONE</b></div><div class="milestone done"><span>05</span><div><strong>Темы и УПР./PRO режимы</strong><small>4 цветовые схемы и полноэкранная терминальная сцена</small></div><b>DONE</b></div></article>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="first-run-overlay" id="first-run-overlay" aria-hidden="true">
+    <div class="first-run-card">
+      <div class="first-run-os"><div class="windows-mark win11" id="first-run-windows-mark"><i></i><i></i><i></i><i></i></div><div><strong id="first-run-os-title">WINDOWS 11</strong><span id="first-run-os-build">X64 SECURE ENVIRONMENT</span></div></div>
+      <section id="agreement-screen">
+        <span class="tag">FIRST RUN // AGREEMENT 1.0</span><h1>Перед началом работы</h1><p class="agreement-lead">REDLINE изменяет сетевые маршруты Windows, запускает TUN/WinDivert с правами администратора и обрабатывает добавленные вами конфигурации локально.</p>
+        <div class="agreement-points"><div><b>01</b><span><strong>Только ваши данные</strong><small>REDLINE не предоставляет VPN-серверы и не гарантирует сторонние узлы.</small></span></div><div><b>02</b><span><strong>Системные изменения</strong><small>TUN, Proxy и DPI Shield временно изменяют маршруты и сетевые параметры.</small></span></div><div><b>03</b><span><strong>Ответственность оператора</strong><small>Используйте приложение и подписки в соответствии с законами и правилами провайдеров.</small></span></div></div>
+        <label class="agreement-check"><input id="agreement-checkbox" type="checkbox"><i></i><span>Я прочитал условия и понимаю сетевые риски.</span></label>
+        <div class="first-run-actions"><button class="btn secondary" id="agreement-exit">Выйти</button><button class="btn primary" id="agreement-accept" disabled>Принять и продолжить</button></div>
+      </section>
+      <section id="onboarding-screen" hidden>
+        <div class="onboarding-head"><span class="tag" id="onboarding-step-label">STEP 01 / 04</span><div class="onboarding-dots" id="onboarding-dots"><i class="active"></i><i></i><i></i><i></i></div></div><div class="onboarding-symbol" id="onboarding-symbol"><svg><use href="#i-grid"/></svg></div><h1 id="onboarding-title">Обзор</h1><p id="onboarding-subtitle">Главный экран управления REDLINE</p><ol class="onboarding-points" id="onboarding-points"></ol>
+        <div class="first-run-actions"><button class="btn secondary" id="onboarding-back">Назад</button><button class="btn secondary" id="onboarding-skip">Пропустить</button><button class="btn primary" id="onboarding-next">Далее</button></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="connect-terminal-overlay" id="connect-terminal" aria-hidden="true"><div class="terminal-scene"><div class="terminal-rain" id="terminal-rain" aria-hidden="true"></div><header><div class="terminal-brand"><span class="brand-mark"><i></i><i></i><i></i></span> REDLINE // LINK SEQUENCE</div><div class="terminal-state"><span id="terminal-stage-led"></span><b id="terminal-stage">INITIALIZING</b></div></header><div class="terminal-scan"><div class="auth-windows-logo" id="auth-windows-logo" hidden aria-hidden="true"><div class="windows-mark win11" id="auth-windows-mark"><i></i><i></i><i></i><i></i></div><div><strong id="auth-os-title">WINDOWS 11</strong><span id="auth-os-build">SECURE OPERATOR AUTHENTICATION // X64</span></div></div><div class="terminal-ascii" id="terminal-ascii" aria-hidden="true">██████╗ ███████╗██████╗ ██╗     ██╗███╗   ██╗███████╗<br>██╔══██╗██╔════╝██╔══██╗██║     ██║████╗  ██║██╔════╝<br>██████╔╝█████╗  ██║  ██║██║     ██║██╔██╗ ██║█████╗<br>██╔══██╗██╔══╝  ██║  ██║██║     ██║██║╚██╗██║██╔══╝<br>██║  ██║███████╗██████╔╝███████╗██║██║ ╚████║███████╗</div><div class="terminal-lines" id="connect-terminal-lines"></div><form class="auth-console" id="auth-console" hidden><label><span>operator@redline password:</span><input id="startup-password-input" type="password" autocomplete="current-password" autofocus></label><button type="submit">UNLOCK</button><small id="auth-error"></small></form><div class="terminal-cursor-line"><span>root@redline:</span><b id="terminal-command">deploy --dpi-shield</b><i></i></div></div><footer><div class="terminal-progress"><i id="terminal-progress-bar"></i></div><span id="terminal-progress-text">0% · BOOTSTRAP</span><button id="terminal-close" disabled>ЗАКРЫТЬ</button></footer></div></div>
+
+  <div class="modal-backdrop" id="subscription-modal" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-head"><div><span class="tag">PRIVATE CONFIG INTAKE</span><h2>Добавить свою подписку</h2></div><button class="modal-close">×</button></div>
+      <div class="import-types"><button class="active" data-import-type="url"><svg><use href="#i-link"/></svg><span>URL</span></button><button data-import-type="text"><svg><use href="#i-code"/></svg><span>ТЕКСТ</span></button><button data-import-type="file"><svg><use href="#i-folder"/></svg><span>ФАЙЛ</span></button></div>
+      <label class="field"><span>НАЗВАНИЕ</span><input id="sub-name" placeholder="Например: Моя основная подписка" maxlength="100"></label>
+      <label class="field"><span>ЛИЧНАЯ ЗАМЕТКА</span><textarea id="sub-note" rows="3" maxlength="500" placeholder="Например: купил у провайдера X, тариф до декабря, ссылка из Telegram"></textarea><small>Заметка хранится только локально и не отправляется провайдеру.</small></label>
+      <div class="import-pane active" data-import-pane="url"><label class="field"><span>HTTPS/HTTP ССЫЛКА ПОДПИСКИ</span><div class="input-with-icon"><svg><use href="#i-link"/></svg><input id="sub-url" type="url" placeholder="https://provider.example/sub/••••••" autocomplete="off"></div><small>Загрузка выполняется главным процессом приложения. Ссылка не передаётся сторонним сервисам.</small></label><label class="modal-checkbox"><span class="toggle"><input id="sub-auto-update" type="checkbox" checked><i></i></span><div><strong>Разрешить ручное обновление по этой ссылке</strong><small>Автоматический фоновый запрос пока не запускается</small></div></label><label class="modal-checkbox hwid-option"><span class="toggle"><input id="sub-hwid-enabled" type="checkbox"><i></i></span><div><strong>Отправлять HWID этой подписке</strong><small>X-HWID и device headers; включайте только если этого требует провайдер</small></div></label></div>
+      <div class="import-pane" data-import-pane="text"><label class="field"><span>СПИСОК ССЫЛОК ИЛИ BASE64</span><textarea id="sub-content" rows="8" placeholder="vless://...&#10;trojan://...&#10;vmess://...&#10;&#10;Также можно вставить Base64-подписку."></textarea><small>Поддерживаются VLESS, VMess, Trojan, Shadowsocks, Hysteria2 и SOCKS.</small></label></div>
+      <div class="import-pane" data-import-pane="file"><div class="file-drop"><span class="empty-icon"><svg><use href="#i-folder"/></svg></span><strong>Выберите локальный файл</strong><small>TXT · JSON · CONF · HAPP · до 5 МБ</small><button class="btn primary" id="choose-file">Открыть файл</button></div></div>
+      <div class="modal-warning"><svg><use href="#i-shield"/></svg><span>Приложение не добавляет собственные узлы. После импорта появятся только серверы из выбранного вами источника.</span></div>
+      <div class="modal-actions"><button class="btn secondary modal-close">Отмена</button><button class="btn primary" id="import-subscription"><svg><use href="#i-download"/></svg> Импортировать</button></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="deeplink-modal" aria-hidden="true">
+    <div class="modal deeplink-modal-card">
+      <div class="modal-head"><div><span class="tag">EXTERNAL WEBSITE REQUEST</span><h2>Добавить подписку в REDLINE?</h2></div><button class="deeplink-reject modal-close">×</button></div>
+      <div class="deeplink-source"><span class="event-icon warn"><svg><use href="#i-link"/></svg></span><div><small>ВНЕШНЯЯ ССЫЛКА</small><strong id="deeplink-display">—</strong><p id="deeplink-description">Сайт запросил открытие приложения.</p></div></div>
+      <label class="field"><span>НАЗВАНИЕ В ПРИЛОЖЕНИИ</span><input id="deeplink-name" maxlength="100" placeholder="Моя подписка"></label>
+      <div class="modal-warning"><svg><use href="#i-shield"/></svg><span>REDLINE не импортирует данные автоматически. URL будет загружен только после вашего подтверждения. Проверьте имя и адрес источника.</span></div>
+      <div class="deeplink-capabilities"><span><i class="green-dot"></i>redline://add?url=…</span><span><i></i>HAPP CRYPT DISABLED</span><span><i></i>NO AUTO-CONNECT</span></div>
+      <div class="modal-actions"><button class="btn secondary deeplink-reject">Отклонить</button><button class="btn primary" id="deeplink-accept"><svg><use href="#i-download"/></svg> Добавить</button></div>
+    </div>
+  </div>
+
+  <div class="command-palette" id="command-palette" aria-hidden="true"><div class="command-box"><div class="command-search"><svg><use href="#i-terminal"/></svg><input id="command-input" placeholder="Найти действие..."><kbd>ESC</kbd></div><div class="command-results"><small>БЫСТРЫЕ ДЕЙСТВИЯ</small><button data-command="connect"><span><svg><use href="#i-power"/></svg> Запустить или остановить активный движок</span><kbd>Enter</kbd></button><button data-command="add"><span><svg><use href="#i-plus"/></svg> Добавить подписку</span><kbd>A</kbd></button><button data-command="nodes"><span><svg><use href="#i-server"/></svg> Открыть мои узлы</span><kbd>N</kbd></button><button data-command="ping"><span><svg><use href="#i-activity"/></svg> Проверить все узлы</span><kbd>P</kbd></button><button data-command="logs"><span><svg><use href="#i-terminal"/></svg> Открыть журнал</span><kbd>L</kbd></button></div></div></div>
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+  <svg class="svg-symbols" aria-hidden="true">
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01M7 17h.01M11 7h7M11 17h7"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1M14 11a5 5 0 0 0-7.1-.1l-2 2A5 5 0 0 0 12 20l1.1-1.1"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M6.1 8a7 7 0 0 1 11.5-2.2L20 8M4 16l2.4 2.2A7 7 0 0 0 18 16"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 8.2 8 9 4.6-.8 8-4 8-9V6l-8-3Z"/><path d="m8.5 12 2 2 5-5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l2-7 4 14 2-7h6"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6h7l2 2h9v11H3z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 5-6 7 6 7M16 5l6 7-6 7M14 3l-4 18"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></symbol>
+    <symbol id="i-dpi" viewBox="0 0 24 24"><path d="M12 2 4 5.5v6c0 5.2 3.3 8.6 8 10 4.7-1.4 8-4.8 8-10v-6L12 2Z"/><path d="m8 8 3 3-3 3M13 8h4M13 12h3M13 16h2"/></symbol>
+    <symbol id="i-tunnel" viewBox="0 0 24 24"><path d="M4 20V11a8 8 0 0 1 16 0v9M8 20v-9a4 4 0 0 1 8 0v9M2 20h20"/><path d="m10 15 2 2 2-2"/></symbol>
+    <symbol id="i-xray" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M17 7l3-3M4 20l3-3"/></symbol>
+  </svg>
+  <script src="app.js"></script>
+</body>
+</html>

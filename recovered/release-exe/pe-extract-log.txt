@@ -1,0 +1,54 @@
+
+7-Zip 23.01 (x64) : Copyright (c) 1999-2023 Igor Pavlov : 2023-06-20
+ 64-bit locale=C.UTF-8 Threads:4 OPEN_MAX:65536
+
+Scanning the drive for archives:
+1 file, 235533824 bytes (225 MiB)
+
+Extracting archive: /tmp/asset/REDLINE.Client.exe
+--
+Path = /tmp/asset/REDLINE.Client.exe
+Type = PE
+Physical Size = 235533824
+CPU = x64
+64-bit = +
+Characteristics = Executable LargeAddress
+Created = 2026-08-18 07:52:25
+Headers Size = 1536
+Checksum = 0
+Image Size = 237277184
+Section Alignment = 4096
+File Alignment = 512
+Code Size = 186547712
+Initialized Data Size = 48973312
+Uninitialized Data Size = 0
+Linker Version = 14.0
+OS Version = 10.0
+Image Version = 0.0
+Subsystem Version = 10.0
+Subsystem = Windows GUI
+DLL Characteristics = HighEntropyVA Relocated NX-Compatible GuardCF TerminalServerAware
+Stack Reserve = 8388608
+Stack Commit = 4096
+Heap Reserve = 1048576
+Heap Commit = 4096
+Image Base = 5368709120
+Comment = 
+{
+FileVersion: 1.8.0.0
+FileVersion: 1.8.1-beta
+ProductVersion: 1.8.1.0
+CompanyName: Local Operator
+FileDescription: REDLINE Client
+InternalName: REDLINE Client
+LegalCopyright: Copyright © 2026 Local Operator
+OriginalFilename: 
+ProductName: REDLINE Client
+SquirrelAwareVersion: 1
+}
+
+Everything is Ok
+
+Files: 67
+Size:       235530153
+Compressed: 235533824

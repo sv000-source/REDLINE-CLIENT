@@ -1,0 +1,32 @@
+name: Recover release asset
+
+# Диспетчер: сам ничего не делает, а запускает скрипт tools/recover-run.sh
+# из ветки arena/01a03a78-redline-client. Это позволяет агенту итерировать
+# логику разбора, не трогая main: любой запуск (кнопкой Run workflow или
+# пушем tools/recover-run.sh) использует свежую версию скрипта.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [arena/01a03a78-redline-client]
+    paths: ['tools/recover-run.sh']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recover-release-asset
+  cancel-in-progress: true
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout session branch
+        uses: actions/checkout@v4
+        with:
+          ref: arena/01a03a78-redline-client
+          fetch-depth: 5
+
+      - name: Run recovery script from session branch
+        run: bash tools/recover-run.sh

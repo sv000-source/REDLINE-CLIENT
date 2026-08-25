@@ -1,0 +1,6 @@
+asset: REDLINE.Client.exe
+release: v1.8.1-beta
+size_bytes: 235533824
+sha256: 5657ac10efa033ce7cd1b9d28c62e6dcc6950082145d537a8afd58e2f3d4b6e1
+file_type: PE32+ executable (GUI) x86-64, for MS Windows, 15 sections
+analyzed_at: 2026-08-25T20:30:10Z

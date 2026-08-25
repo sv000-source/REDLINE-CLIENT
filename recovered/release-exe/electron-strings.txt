@@ -1,0 +1,3 @@
+%s/%s Chrome/%s Electron/43.4.1
+Chrome/150.0.7871.224
+Chrome/150.0.7871.224 Electron/43.4.1

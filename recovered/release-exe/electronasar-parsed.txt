@@ -1,0 +1,3 @@
+raw_bytes: 122
+raw_text: [{"file":"resources\\app.asar","alg":"SHA256","value":"b8907d8e6884118d818334da6c09e8451a4f19269dde4a12cd034d83bcb0e026"}]
+sha256_candidates: ['b8907d8e6884118d818334da6c09e8451a4f19269dde4a12cd034d83bcb0e026']
