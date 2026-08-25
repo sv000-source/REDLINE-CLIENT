@@ -6,6 +6,18 @@
 `/home/user/happ-redline-desktop` с тестами, package-lock и vendor-каталогами
 не сохранился и восстановлен из этих источников в папку `happ-redline-desktop/`.
 
+## Релиз v1.8.1-beta (дополнительные сохранённые данные)
+
+В релизе https://github.com/sv000-source/REDLINE-CLIENT/releases лежит файл
+`REDLINE.Client.exe` (235 533 824 байта), который не вошёл в репозиторий
+(лимит GitHub — 100 МБ на файл). Среда разработки не имеет прямого доступа к
+CDN GitHub (`release-assets/objects.githubusercontent.com`), поэтому файл
+разбирается транспортным workflow (его текст — `tools/recover-release-asset.yml.txt`):
+раннер Actions скачивает asset, определяет тип, извлекает ценные части
+(app.asar, манифесты, иконки), сравнивает содержимое с репозиторием и
+коммитит результаты в ветку `arena/01a03a78-redline-client` в каталог
+`recovered/release-exe/`. Результаты разбора — см. этот каталог.
+
 ## Что уцелело без потерь
 
 | Что | Где | Состояние |
