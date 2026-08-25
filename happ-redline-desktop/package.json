@@ -1,6 +1,6 @@
 {
   "name": "happ-redline-desktop",
-  "version": "1.8.1-beta",
+  "version": "1.9.0-beta",
   "description": "RED TEAM Windows-клиент с Xray и Flowseal DPI Shield для YouTube/Discord",
   "main": "src/main.js",
   "author": "Local Operator",

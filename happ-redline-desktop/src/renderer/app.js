@@ -26,7 +26,8 @@
     osInfo: null,
     protocols: { redline: false, happ: false },
     deepLink: null,
-    deepLinkQueue: []
+    deepLinkQueue: [],
+    updater: null
   };
 
   function makeSvg(id) {
@@ -150,7 +151,7 @@
 
     return {
       isDesktop: false,
-      appInfo: async () => ({ version: '1.8.1-beta-preview', platform: 'browser', arch: 'preview', encryptedStorage: false }),
+      appInfo: async () => ({ version: '1.9.0-beta-preview', platform: 'browser', arch: 'preview', encryptedStorage: false }),
       appLifecycle: { confirmClose: async () => {}, onShutdownRequest: () => () => {} },
       security: { status: async () => ({ required: false, unlocked: true, agreementAccepted: true, onboardingComplete: true, system: { label: 'Windows 11', arch: 'x64', release: '10.0.22631' } }), acceptAgreement: async () => ({ agreementAccepted: true }), completeOnboarding: async () => ({ onboardingComplete: true }), resetOnboarding: async () => ({ onboardingComplete: false }), verify: async () => ({ required: false, unlocked: true }), setPassword: async () => ({ required: true, unlocked: true }), removePassword: async () => ({ required: false, unlocked: true }) },
       system: { power: async () => ({}), emergencyReset: async () => ({ ok: true, report: ['Preview reset'] }), autostartStatus: async () => ({ enabled: false, supported: false }), setAutostart: async () => ({ enabled: false, supported: false }) },
@@ -201,6 +202,11 @@
           document.documentElement.style.zoom = `${next}%`;
           return next;
         }, onMaximized: () => () => {}
+      },
+      updater: {
+        check: async () => { throw new Error('Проверка обновлений работает только в нативной Windows-сборке.'); },
+        openRelease: async () => { throw new Error('Открытие страницы релиза работает только в нативной сборке.'); },
+        onStatus: () => () => {}
       }
     };
   }
@@ -1108,6 +1114,42 @@
     $('#terminal-rain').append(stream);
   }
 
+  // 1.9.0-beta: автообновление через GitHub Releases.
+  function renderUpdater() {
+    const detail = $('#updater-detail');
+    if (!detail) return;
+    const status = model.updater;
+    if (!status) { detail.textContent = 'Проверка новых релизов на GitHub…'; return; }
+    if (!status.ok) { detail.textContent = `Проверка не выполнена: ${status.error}`; return; }
+    if (status.updateAvailable && status.latest) {
+      detail.textContent = `Доступна версия ${status.latest.version} — сверьте SHA-256 из описания релиза`;
+    } else if (status.latest) {
+      detail.textContent = `Установлена последняя версия (${status.latest.version})`;
+    } else {
+      detail.textContent = status.note || 'Опубликованных релизов не найдено';
+    }
+  }
+  api.updater.onStatus(status => { model.updater = status; renderUpdater(); });
+  $('#check-updates').addEventListener('click', async event => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    try {
+      const status = await api.updater.check();
+      model.updater = status;
+      renderUpdater();
+      if (status.ok) {
+        toast('Обновления', status.updateAvailable ? `Доступна версия ${status.latest.version}` : `Установлена последняя версия (${status.latest?.version || '—'})`, 'info');
+      } else {
+        toast('Обновления', `Проверка не выполнена: ${status.error}`, 'error');
+      }
+    } catch (error) {
+      toast('Обновления', error.message, 'error');
+    } finally {
+      button.disabled = false;
+    }
+  });
+  renderUpdater();
+
   // Native window controls and zoom.
   $('#win-minimize').addEventListener('click', () => api.window.minimize());
   $('#win-maximize').addEventListener('click', () => api.window.maximize());
@@ -1157,6 +1199,7 @@
       addLog(model.singbox.core?.available ? 'info' : 'warn', 'Sing-box TUN', model.singbox.core?.available ? `Core ${model.singbox.core.version} готов` : 'TUN core недоступен');
       addLog(model.zapret.available ? 'info' : 'warn', 'DPI Shield', model.zapret.available ? `${model.zapret.version} готов · ${model.zapret.state}` : 'Flowseal Zapret недоступен');
       addLog(snapshot.security?.encrypted ? 'info' : 'warn', 'Storage', snapshot.security?.encrypted ? 'Хранилище подписок защищено safeStorage' : 'Системное шифрование недоступно или это preview');
+      addLog('info', 'Updater', 'Автообновление: GitHub Releases; проверка при запуске + кнопка в настройках');
       if (api.isDesktop) {
         const autostart = await api.system.autostartStatus();
         $('#autostart-toggle').checked = Boolean(autostart.enabled);

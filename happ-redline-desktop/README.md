@@ -3,8 +3,23 @@
 RED TEAM Windows-клиент для собственных подписок пользователя: Xray Proxy,
 Sing-box TUN и Flowseal DPI Shield в одном интерфейсе.
 
-Текущая версия: **1.8.1-beta**. Схема версий: при любом изменении — bump до
+Текущая версия: **1.9.0-beta**. Схема версий: при любом изменении — bump до
 следующей `1.x.x-beta`.
+
+## 1.9.0-beta
+
+- Автообновление через GitHub Releases (`src/services/updater.js`): проверка
+  свежих опубликованных релизов `sv000-source/REDLINE-CLIENT` по
+  `api.github.com` — при запуске (тихо, статус в трей-иконке и в настройках)
+  и вручную (кнопка «Проверить» в настройках / пункт меню трея). Честный
+  User-Agent `REDLINE-Client/<version>`, один GET-запрос на проверку, без
+  телеметрии. Установка — ручная: релизный `REDLINE.Client.exe` заменяется на
+  новый, SHA-256 сверяется по описанию релиза.
+- Трей-иконка (системный трей Windows): «Показать REDLINE Client»,
+  «Проверить обновления», «GitHub Releases», «Выход»; двойной клик — показать
+  окно. Закрываемое приложение как раньше: «Выход» прогоняет штатную
+  последовательность остановки движков.
+- Тесты `test/updater.test.js` (`node --test`).
 
 ## Возможности
 
@@ -39,12 +54,20 @@ Sing-box TUN и Flowseal DPI Shield в одном интерфейсе.
 ```text
 npm install
 npm run prepare:engines   # скачать официальные Xray / Sing-box / Zapret с проверкой SHA-256
-npm test                  # тесты (восстанавливаются, см. RECOVERY-NOTES)
+npm test                  # тесты
 npx electron-builder --win dir --x64
 ```
 
-Готовая распакованная сборка: `release/win-unpacked/` (`REDLINE Client.exe`,
-требует администратора). Архивировать вручную:
+Релизный однофайловый `REDLINE.Client.exe` (как в релизах GitHub):
+
+```text
+npx electron-builder --win portable --x64   # -> release/REDLINE.Client.exe
+```
+
+Иконка EXE — `build/icon.ico` (извлечена из релизного EXE 1.8.1-beta, см.
+`../recovered/release-exe/pe-icons/`). Готовая распакованная сборка:
+`release/win-unpacked/` (`REDLINE Client.exe`, требует администратора).
+Архивировать вручную:
 
 ```text
 cd release/win-unpacked

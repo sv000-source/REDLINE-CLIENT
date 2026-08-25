@@ -1,0 +1,57 @@
+# ============================================================================
+# Файл для main: .github/workflows/build-release-win.yml
+#
+# Токен агента не имеет права workflows — файл кладёт на main пользователь
+# (те же условия, при которых появился recover-release-asset.yml).
+#
+# Использование:
+#   1. Скопировать содержимое (без этих комментариев-шапок, либо можно и с
+#      ними — YAML их проигнорирует) в .github/workflows/build-release-win.yml
+#      на main и закоммитить.
+#   2. Actions → Build Windows release 1.9.0-beta → Run workflow → Run.
+#
+# Раннер (windows-latest) имеет полный интернет: скачает Electron и
+# официальные движки, соберёт portable-EXE и опубликует релиз v1.9.0-beta
+# с REDLINE.Client.exe и SHA-256 в описании (GITHUB_TOKEN, contents:write).
+# Логика сборки итерируется в tools/build-release-win.sh — этот файл
+# намеренно тонкий, как диспетчер recover-release-asset.yml.
+# ============================================================================
+
+name: Build Windows release 1.9.0-beta
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Тег релиза"
+        required: false
+        default: "v1.9.0-beta"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-windows-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout session branch
+        uses: actions/checkout@v4
+        with:
+          ref: arena/01a03ad6-redline-client
+          fetch-depth: 1
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: happ-redline-desktop/package-lock.json
+
+      - name: Run build and publish script
+        run: bash tools/build-release-win.sh
+        env:
+          RELEASE_TAG: ${{ inputs.tag || 'v1.9.0-beta' }}
