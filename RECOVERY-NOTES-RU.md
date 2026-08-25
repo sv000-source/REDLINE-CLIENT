@@ -51,7 +51,29 @@ CDN GitHub (`release-assets/objects.githubusercontent.com`), поэтому фа
 `REDLINE`/`TUN CORE` в байтах не встречаются — всё упаковано), распаковка
 его не требовалась.
 
-### Как устроен транспорт
+### Сессия 3 (25.08.2026): 1.9.0-beta и сборка релиза
+
+- User прислал задачу: patch-файл 1.9.0-beta (автообновление через GitHub
+  Releases + трей) — **файл в песочницу не доставился** (проверен весь
+  filesystem); реализация сделана по описанию и правилам проекта, расхождение
+  зафиксировано (chat_history_2.txt, ХОД 6). Если patch пришлём повторно —
+  ветка перезаписывается по нему.
+- `happ-redline-desktop/` — 1.9.0-beta: `src/services/updater.js`, трей в
+  `src/main.js`, строка «Обновления приложения» в настройках, тесты
+  `test/updater.test.js` (19 PASS, `node --test`), package-lock.json.
+- `resources/app.asar` пересобран под 1.9.0-beta: 397 701 байт,
+  SHA-256 `85a64eb14caf23e7123b79407a447015bd517450e054fdc827a124ba54ed6a40`;
+  хэш заголовка (значение ELECTRONASAR для будущего exe):
+  `662f62f9f49f054b4c9e1616307f0f997b18f7729d23aa74a8d5a91aa1449b5f`.
+- EXE в песочнице собрать **невозможно** (CDN objects.githubusercontent.com
+  — SSL reset; подтверждено прогон electron-builder: «unable to verify the
+  first certificate»; wine отсутствует). Сборка + публикация релиза
+  v1.9.0-beta (REDLINE.Client.exe + SHA-256 в описании) — через Actions:
+  `tools/build-release-win.sh` + диспетчер `tools/build-release-win.yml.txt`
+  (пользователь кладёт на main как `build-release-win.yml` и жмёт Run
+  workflow; раннер windows-latest, node 22, contents:write).
+
+## Как устроен транспорт
 
 Диспетчер `.github/workflows/recover-release-asset.yml` на `main` (создан
 вручную пользователем — токен агента не имеет права workflows) только
@@ -78,8 +100,14 @@ CDN GitHub (`release-assets/objects.githubusercontent.com`), поэтому фа
 
 - **Тесты** — 15 файлов `test/*.test.js` (47 тестов, `node --test`). В истории
   сохранились только фрагменты. Нужно переписать заново по текущему коду.
+  Обновлено (сессия 3, 25.08.2026): восстановлен `test/updater.test.js`
+  (19 тестов для 1.9.0-beta); остальные 14 файлов — по-прежнему отсутствуют.
 - **package-lock.json** — пересоздаётся `npm install`.
+  Обновлено (сессия 3): воссоздан и закоммичен (happ-redline-desktop/).
 - **Иконка приложения / build-ресурсы electron-builder** (иконка exe).
+  Обновлено (сессия 3): иконка в `happ-redline-desktop/build/icon.ico`
+  (из `recovered/release-exe/pe-icons/`), кэш для трей-иконки —
+  `happ-redline-desktop/src/assets/icon-{ico,32.png}`.
 - **Готовые архивы** 1.8.1-beta (7z, source.zip, BUILD-INFO) — не критично,
   собираются заново.
 - **xray-legacy.exe v26.1.23** (compatibility-core для `insecure=1` в режиме
@@ -116,16 +144,19 @@ CDN GitHub (`release-assets/objects.githubusercontent.com`), поэтому фа
 per subscription) → 1.5.0-beta (Sing-box TUN) → 1.5.1-beta (фикс DNS: hijack +
 DoH через proxy) → 1.6.0-beta (упрощение UI) → 1.6.1-beta → 1.7.0-beta
 (соглашение, онбординг, логотипы движков) → 1.8.0-beta (выбор подписки→узел,
-группировка, заметки, аварийный сброс) → **1.8.1-beta (плашка Telegram-ботов:
-@AccarTunnelBot @perec @maxvpnonlinebot @abs_vpnbot @Geodema_bot)**.
+группировка, заметки, аварийный сброс) → 1.8.1-beta (плашка Telegram-ботов:
+@AccarTunnelBot @perec @maxvpnonlinebot @abs_vpnbot @Geodema_bot) →
+**1.9.0-beta (автообновление через GitHub Releases + трей-иконка; тесты
+updater)**.
 
 ## Открытые вопросы на момент сбоя (последние сообщения пользователя, ответов не было)
 
 1. **Android-версия** — пользователь спросил «возможно ли сделать версию для
    андроид» и просил задать 4 уточняющих вопроса.
-2. **Автообновление приложения** — пользователь предлагает обновление по кнопке
-   в настройках, выложенной им самим сборки, с завязкой на GitHub; просил
-   задать 20 вопросов, в последнем — решение «делаем или нет».
+2. **Автообновление приложения** — РЕАЛИЗОВАНО в 1.9.0-beta (сессия 3):
+   `happ-redline-desktop/src/services/updater.js` + кнопка в настройках +
+   трей; завязка на GitHub Releases (`sv000-source/REDLINE-CLIENT`), честный
+   UA, установка ручная (замена portable-EXE, сверка SHA-256).
 
 ## Известные нерешённые проблемы (из финальной сводки истории)
 
