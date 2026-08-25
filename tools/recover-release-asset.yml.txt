@@ -1,0 +1,118 @@
+name: Recover release asset
+
+# Транспортная задача: среда разработки не имеет доступа к CDN GitHub,
+# но файл REDLINE.Client.exe (235 МБ) из релиза v1.8.1-beta лежит именно там.
+# Workflow скачивает asset на раннере, определяет его тип, извлекает ценные
+# части (app.asar, манифесты, иконки), сравнивает содержимое с файлами репо
+# и коммитит результаты в рабочую ветку arena/01a03a78-redline-client.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout session branch
+        uses: actions/checkout@v4
+        with:
+          ref: arena/01a03a78-redline-client
+          fetch-depth: 5
+
+      - name: Download asset
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/asset
+          curl -L --fail --retry 3 --retry-delay 5 -o /tmp/asset/REDLINE.Client.exe \
+            "https://github.com/${GITHUB_REPOSITORY}/releases/download/v1.8.1-beta/REDLINE.Client.exe"
+          ls -la /tmp/asset
+
+      - name: Analyze and extract
+        run: |
+          set -x
+          DEST="${GITHUB_WORKSPACE}/recovered/release-exe"
+          mkdir -p "$DEST" /tmp/asset/x
+          cd /tmp/asset
+
+          {
+            echo "asset: REDLINE.Client.exe"
+            echo "release: v1.8.1-beta"
+            echo "size_bytes: $(stat -c %s REDLINE.Client.exe)"
+            echo "sha256: $(sha256sum REDLINE.Client.exe | cut -d' ' -f1)"
+            echo "file_type: $(file -b REDLINE.Client.exe)"
+            echo "analyzed_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > "$DEST/manifest.txt"
+
+          7z l REDLINE.Client.exe > "$DEST/listing-7z.txt" 2>&1 || true
+          7z x -y -ox REDLINE.Client.exe > "$DEST/extract-log-7z.txt" 2>&1 || true
+          if [ -z "$(find x -type f 2>/dev/null | head -1)" ]; then
+            unzip -o -q REDLINE.Client.exe -d x > "$DEST/extract-log-unzip.txt" 2>&1 || true
+          fi
+          find x -type f -printf '%s\t%p\n' 2>/dev/null | sort -k2 > "$DEST/files.txt"
+
+          strings -n 12 REDLINE.Client.exe 2>/dev/null \
+            | grep -aE 'Chrome/[0-9]+|Electron/[0-9]+|node\.js/[0-9]+' \
+            | sort -u | head -20 > "$DEST/electron-strings.txt" || true
+
+          if ! command -v wrestool >/dev/null 2>&1; then
+            sudo apt-get install -y -qq icoutils >/dev/null 2>&1 || true
+          fi
+          if command -v wrestool >/dev/null 2>&1; then
+            mkdir -p "$DEST/pe-icons"
+            wrestool -x --output="$DEST/pe-icons" REDLINE.Client.exe 2>/dev/null || true
+          fi
+
+          # Небольшие ценные файлы из распаковки
+          find x -type f \( -name '*.asar' -o -name 'package.json' -o -name '*.yml' \
+            -o -name '*.yaml' -o -name 'LICENSE*' -o -name '*.ico' -o -name '*.md' \
+            -o -name '*.txt' \) -size -25M 2>/dev/null | while read -r f; do
+            rel="${f#x/}"
+            mkdir -p "$DEST/extracted/$(dirname "$rel")"
+            cp "$f" "$DEST/extracted/$rel"
+          done
+          find "$DEST" -name '*.asar' -exec sha256sum {} \; > "$DEST/asar-hashes.txt" 2>/dev/null || true
+
+      - name: Compare extracted files with repo
+        run: |
+          set -x
+          DEST="${GITHUB_WORKSPACE}/recovered/release-exe"
+          cd "${GITHUB_WORKSPACE}"
+          git ls-files -s | awk '{print $4"\t"$2}' | sort > /tmp/repo-index.txt
+          cd /tmp/asset
+          find x -type f 2>/dev/null | while read -r f; do
+            rel="${f#x/}"
+            printf '%s\t%s\n' "$rel" "$(git hash-object "$f")"
+          done | sort > /tmp/asset-index.txt
+          python3 - > "$DEST/compare-repo.txt" <<'PY'
+          repo = {}
+          for line in open('/tmp/repo-index.txt'):
+              path, sha = line.rstrip('\n').split('\t')
+              repo[path] = sha
+          asset = {}
+          for line in open('/tmp/asset-index.txt'):
+              path, sha = line.rstrip('\n').split('\t')
+              asset[path] = sha
+          new = sorted(set(asset) - set(repo))
+          changed = sorted(p for p in set(asset) & set(repo) if asset[p] != repo[p])
+          missing = sorted(set(repo) - set(asset))
+          print('NEW in exe (%d):' % len(new))
+          for p in new: print('  +', p)
+          print('CHANGED vs repo (%d):' % len(changed))
+          for p in changed: print('  ~', p)
+          print('In repo but NOT in exe (%d, first 60):' % len(missing))
+          for p in missing[:60]: print('  -', p)
+          PY
+          cat "$DEST/compare-repo.txt"
+
+      - name: Commit results to session branch
+        run: |
+          set -x
+          git config user.name "arena-recovery-bot"
+          git config user.email "arena-recovery@users.noreply.github.com"
+          git add recovered
+          if git diff --cached --quiet; then echo "nothing to commit"; exit 0; fi
+          git commit -m "Разбор release-asset REDLINE.Client.exe (v1.8.1-beta) [skip ci]"
+          git push origin HEAD:refs/heads/arena/01a03a78-redline-client
