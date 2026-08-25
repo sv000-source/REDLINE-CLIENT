@@ -178,3 +178,37 @@ chat_history_2.txt — история второй сессии REDLINE Client (
   npx electron-builder --win dir --x64 (+ версия 1.8.2-beta по правилам, если
   правим код).
 
+================================================================================
+ХОД 6 — 25.08.2026
+================================================================================
+
+ПОЛЬЗОВАТЕЛЬ:
+(кнопкой в чате Arena) Please open a pull request for the changes on this branch.
+/ Уточнил, что нажимал кнопки Open PR и Merge PR в интерфейсе чата.
+/ (кнопкой) Please merge the pull request.
+
+АГЕНТ:
+- Открыт PR #1 «Восстановление dev-проекта REDLINE Client 1.8.1-beta после
+  сбоя + разбор релизного EXE»: arena/01a03a78-redline-client → main,
+  +6489 строк / 141 файл / 0 удалений, MERGEABLE.
+- Проверен main: история целая (init → chat_history.txt → Create/Update
+  workflow ×2 — коммиты пользователя), «странный» диф при первом осмотре
+  оказался артефактом shallow-клона, а не проблемой репо (догружена полная
+  история).
+- На вопрос «какая ты нейросеть» отвечено честно: агент Arena.ai Agent Mode;
+  конкретная модель не раскрывается ни пользователю, ни агенту.
+- PR #1 СМЕРЖЕН (merge commit b2f81da, 25.08.2026 20:56 UTC). Теперь main
+  содержит ПОЛНЫЙ проект: сборку win-unpacked + исходники happ-redline-desktop/
+  + RECOVERY-NOTES-RU.md + chat_history.txt + chat_history_2.txt + иконку и
+  отчёты (recovered/) + workflow на main.
+- ВОССТАНОВЛЕНИЕ ПОЛНОСТЬЮ ЗАВЕРШЕНО И ЗАФИКСИРОВАНО В main.
+
+СОСТОЯНИЕ НА МОМЕНТ ХОДА 6:
+- main = b2f81da (merge PR #1). Дальнейшая работа — в ветке
+  arena/01a03a78-redline-client (сессионная ветка Arena) с PR-ами в main.
+- Правила неизменны: версии 1.x.x-beta, только пользовательские подписки,
+  честный User-Agent, happ://crypt не поддерживаем, UI упрощённый.
+- Открытые темы для кодинга: Android (4 вопроса), автообновление через
+  GitHub (20 вопросов), тесты (15 файлов), insecure=1 в XRAY (xray-legacy
+  v26.1.23), Geodema whitelist.
+
