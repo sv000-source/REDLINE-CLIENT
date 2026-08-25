@@ -12,11 +12,38 @@
 `REDLINE.Client.exe` (235 533 824 байта), который не вошёл в репозиторий
 (лимит GitHub — 100 МБ на файл). Среда разработки не имеет прямого доступа к
 CDN GitHub (`release-assets/objects.githubusercontent.com`), поэтому файл
-разбирается транспортным workflow (его текст — `tools/recover-release-asset.yml.txt`):
-раннер Actions скачивает asset, определяет тип, извлекает ценные части
-(app.asar, манифесты, иконки), сравнивает содержимое с репозиторием и
-коммитит результаты в ветку `arena/01a03a78-redline-client` в каталог
-`recovered/release-exe/`. Результаты разбора — см. этот каталог.
+разбирается транспортным workflow на Actions-раннере, который коммитит
+результаты в ветку `arena/01a03a78-redline-client` → `recovered/release-exe/`.
+
+### Что установлено по итогам первого прогона (25.08.2026)
+
+- `REDLINE.Client.exe` — **однофайловая портабл-сборка electron-builder**:
+  PE32+ GUI x86-64, 15 секций, Electron 43.4.1 / Chrome 150.0.7871.224,
+  version resource «REDLINE Client 1.8.1-beta» (Local Operator, ProductVersion
+  1.8.1.0), SHA-256 `5657ac10efa033ce7cd1b9d28c62e6dcc6950082145d537a8afd58e2f3d4b6e1`.
+- Payload (полный win-unpacked с app.asar и движками) сжат внутри секций
+  (`.text` 186 МБ, `.rdata` 41 МБ; секции LZMADEC/CPADinfo/prot/malloc_h —
+  самораспаковка), поэтому обычная распаковка 7z даёт только PE-ресурсы.
+- **Иконка приложения извлечена** (была среди потерянных артефактов):
+  `recovered/release-exe/pe-icons/REDLINE.Client.exe_14_1.ico` (37 КБ, все
+  размеры) + `recovered/release-exe/icon-preview.png` (превью).
+- В ресурсах есть `.rsrc/1033/INTEGRITY/ELECTRONASAR` — Electron asar
+  integrity: содержит SHA-256 заголовка встроенного app.asar. Второй прогон
+  (tools/recover-run.sh) сверяет его с заголовком `resources/app.asar` из
+  репозитория и, при возможности, извлекает payload целиком.
+- Хэш репозиторного `resources/app.asar`:
+  SHA-256 `e768f344b4c6d4a89449e7f384e7bf871f10e2dc94907be84c403ee673691cce`
+  (340 791 байт; заголовок = первые 5684 байта).
+
+### Как устроен транспорт
+
+Диспетчер `.github/workflows/recover-release-asset.yml` на `main` (создан
+вручную пользователем — токен агента не имеет права workflows) только
+запускает `bash tools/recover-run.sh` из ветки `arena/01a03a78-redline-client`.
+Скрипт скачивает asset, делает forensic-разбор (ресурсы, ELECTRONASAR, скан
+подписей 7z/zip/zstd, вырезание payload, wine-самораспаковка) и коммитит
+итоги обратно в ветку. Запуск: Actions → Recover release asset → Run workflow
+(или автоматически пушем tools/recover-run.sh, если push-триггер сработает).
 
 ## Что уцелело без потерь
 
